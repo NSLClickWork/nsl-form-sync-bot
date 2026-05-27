@@ -131,9 +131,9 @@ async function syncAssessments() {
         XLSX.utils.book_append_sheet(newWb, newWs, 'Master Responses');
         const outBuffer = XLSX.write(newWb, { type: 'buffer', bookType: 'xlsx' });
 
-        // 7. Upload to User's OneDrive (MANAGEMENT/Assessment)
+        // 7. Upload to User's OneDrive (MANAGEMENT/Assessment/NSL Assessment Centre)
         console.log("Uploading Master_Assessment_Responses.xlsx to OneDrive...");
-        await client.api(`/users/${USER_EMAIL}/drive/root:/MANAGEMENT/Assessment/Master_Assessment_Responses.xlsx:/content`)
+        await client.api(`/users/${USER_EMAIL}/drive/root:/MANAGEMENT/Assessment/NSL Assessment Centre/Master_Assessment_Responses.xlsx:/content`)
             .put(outBuffer);
             
         console.log("Sync completed successfully!");
