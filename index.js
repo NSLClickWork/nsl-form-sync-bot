@@ -101,12 +101,8 @@ async function syncAssessments() {
             process.exit(0);
         }
 
-        // 4. Determine allowed columns for Lite version
-        const MIN_FILE_COUNT = Math.max(1, formFiles.length - 1);
-        let allowedColumns = Object.keys(columnCounts).filter(h => {
-            if (h.startsWith('Points') || h.startsWith('Feedback') || h.includes('Quiz feedback') || h === 'Total points' || h === 'Grade posted time') return false;
-            return columnCounts[h] >= MIN_FILE_COUNT || h.toLowerCase().includes('điện thoại');
-        });
+        // 4. Determine allowed columns (Keep everything)
+        let allowedColumns = Object.keys(columnCounts);
 
         // 5. Build Master Data
         let masterData = [];
