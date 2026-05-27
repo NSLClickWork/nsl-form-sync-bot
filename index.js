@@ -33,6 +33,22 @@ const authProvider = {
 };
 const client = Client.initWithMiddleware({ authProvider });
 
+async function getAllFiles(driveId, folderId = 'root', allFiles = []) {
+    try {
+        const res = await client.api(`/drives/${driveId}/items/${folderId}/children`).get();
+        for (const item of res.value) {
+            if (item.folder) {
+                await getAllFiles(driveId, item.id, allFiles);
+            } else {
+                allFiles.push(item);
+            }
+        }
+    } catch (e) {
+        console.error("Error reading folder:", e.message);
+    }
+    return allFiles;
+}
+
 async function syncAssessments() {
     console.log("Starting sync...");
     try {
@@ -41,9 +57,10 @@ async function syncAssessments() {
         if (drives.value.length === 0) throw new Error("No drive found for group.");
         const driveId = drives.value[0].id;
 
-        // 2. Get files in Group Drive
-        const filesRes = await client.api(`/drives/${driveId}/root/children`).get();
-        const formFiles = filesRes.value.filter(f => f.name.includes('NSL Assessment Cent') && f.name.endsWith('.xlsx'));
+        // 2. Get all files recursively in Group Drive
+        console.log("Scanning drive for Form files...");
+        const allItems = await getAllFiles(driveId);
+        const formFiles = allItems.filter(f => f.name.includes('NSL Assessment Cent') && f.name.endsWith('.xlsx'));
         console.log(`Found ${formFiles.length} Assessment files.`);
 
         let allWorkbooksData = [];
@@ -52,7 +69,6 @@ async function syncAssessments() {
         // 3. Download and parse each file
         for (const file of formFiles) {
             console.log(`Downloading ${file.name}...`);
-            // Get download URL
             const fileItem = await client.api(`/drives/${driveId}/items/${file.id}`).get();
             const downloadUrl = fileItem['@microsoft.graph.downloadUrl'];
             
@@ -64,12 +80,10 @@ async function syncAssessments() {
             const sheetName = wb.SheetNames[0];
             const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval: '' });
             
-            // Extract profession from file name
             let profession = file.name.replace('NSL Assessment Centre', '').replace('NSL Assessment Center', '').replace('.xlsx', '').trim();
             if (profession.startsWith('-')) profession = profession.substring(1).trim();
             if (!profession) profession = 'Khác';
 
-            // Count columns for Lite version logic
             if (rows.length > 0) {
                 const headerRow = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1 })[0];
                 if (headerRow) {
@@ -79,12 +93,16 @@ async function syncAssessments() {
                     });
                 }
             }
-            
             allWorkbooksData.push({ profession, rows });
         }
 
+        if (formFiles.length === 0) {
+            console.log("No files to sync.");
+            process.exit(0);
+        }
+
         // 4. Determine allowed columns for Lite version
-        const MIN_FILE_COUNT = Math.max(1, formFiles.length - 1); // e.g. 11 out of 12
+        const MIN_FILE_COUNT = Math.max(1, formFiles.length - 1);
         let allowedColumns = Object.keys(columnCounts).filter(h => {
             if (h.startsWith('Points') || h.startsWith('Feedback') || h.includes('Quiz feedback') || h === 'Total points' || h === 'Grade posted time') return false;
             return columnCounts[h] >= MIN_FILE_COUNT || h.toLowerCase().includes('điện thoại');
