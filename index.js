@@ -101,8 +101,24 @@ async function syncAssessments() {
             process.exit(0);
         }
 
-        // 4. Determine allowed columns (Keep everything)
-        let allowedColumns = Object.keys(columnCounts);
+        // 4. Determine allowed columns based on exact user request
+        let allowedColumns = Object.keys(columnCounts).filter(h => {
+            const lowerH = h.toLowerCase().trim();
+            if (lowerH.startsWith('points -') || lowerH.startsWith('feedback -')) return false;
+            
+            const exactMatches = ['nghề nghiệp', 'id', 'start time', 'completion time', 'email', 'name', 'total points', 'quiz feedback', 'grade posted time'];
+            if (exactMatches.includes(lowerH)) return true;
+
+            const partialMatches = [
+                'tên đầy đủ',
+                'mã số học viên',
+                'ngày sinh',
+                'địa chỉ email chính',
+                'công việc chính mà bạn quan tâm',
+                'số điện thoại'
+            ];
+            return partialMatches.some(pattern => lowerH.includes(pattern));
+        });
 
         // 5. Build Master Data
         let masterData = [];
