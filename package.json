@@ -1,0 +1,15 @@
+{
+  "name": "nsl-form-sync-bot",
+  "version": "1.0.0",
+  "description": "Bot to sync Microsoft Forms Excel responses",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@azure/msal-node": "^2.6.4",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "isomorphic-fetch": "^3.0.0",
+    "xlsx": "^0.18.5"
+  }
+}
