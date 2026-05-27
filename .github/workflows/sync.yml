@@ -2,8 +2,8 @@ name: NSL Form Sync Bot
 
 on:
   schedule:
-    # Run every 30 minutes
-    - cron: '*/30 * * * *'
+    # Run every 10 minutes
+    - cron: '*/10 * * * *'
   workflow_dispatch:
     # Allows manual trigger
 

@@ -128,12 +128,12 @@ async function syncAssessments() {
         // 6. Create Excel Buffer
         const newWb = XLSX.utils.book_new();
         const newWs = XLSX.utils.json_to_sheet(masterData);
-        XLSX.utils.book_append_sheet(newWb, newWs, 'Master Responses Lite');
+        XLSX.utils.book_append_sheet(newWb, newWs, 'Master Responses');
         const outBuffer = XLSX.write(newWb, { type: 'buffer', bookType: 'xlsx' });
 
         // 7. Upload to User's OneDrive (MANAGEMENT/Assessment)
-        console.log("Uploading Master_Assessment_Responses_Lite.xlsx to OneDrive...");
-        await client.api(`/users/${USER_EMAIL}/drive/root:/MANAGEMENT/Assessment/Master_Assessment_Responses_Lite.xlsx:/content`)
+        console.log("Uploading Master_Assessment_Responses.xlsx to OneDrive...");
+        await client.api(`/users/${USER_EMAIL}/drive/root:/MANAGEMENT/Assessment/Master_Assessment_Responses.xlsx:/content`)
             .put(outBuffer);
             
         console.log("Sync completed successfully!");
