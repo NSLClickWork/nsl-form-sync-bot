@@ -78,7 +78,7 @@ async function syncAssessments() {
             
             const wb = XLSX.read(buffer, { type: 'buffer' });
             const sheetName = wb.SheetNames[0];
-            const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval: '' });
+            const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval: '', raw: false });
             
             let profession = file.name.replace('NSL Assessment Centre', '').replace('NSL Assessment Center', '').replace('.xlsx', '').trim();
             if (profession.startsWith('-')) profession = profession.substring(1).trim();
