@@ -106,7 +106,7 @@ async function syncAssessments() {
             const lowerH = h.toLowerCase().trim();
             if (lowerH.startsWith('points -') || lowerH.startsWith('feedback -')) return false;
             
-            const exactMatches = ['nghề nghiệp', 'id', 'start time', 'completion time', 'email', 'name', 'total points', 'quiz feedback', 'grade posted time'];
+            const exactMatches = ['nghề nghiệp', 'id', 'start time', 'completion time', 'email', 'total points'];
             if (exactMatches.includes(lowerH)) return true;
 
             const partialMatches = [
